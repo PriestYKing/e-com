@@ -57,7 +57,7 @@ _(If you have a frontend folder)_
 
 3. Start the development server:
    ```bash
-   npm start
+   npm run dev
    ```
 
 ## API Endpoints
@@ -66,6 +66,7 @@ _(If you have a frontend folder)_
 - `GET /users/{id}` - Get user by ID
 - `POST /users` - Create a new user
 - `DELETE /users/{id}` - Delete a user
+- `GET /products` - Get all products
 
 ## License
 
