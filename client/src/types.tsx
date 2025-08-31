@@ -58,3 +58,16 @@ export type CartStoreActionsType = {
   removeFromCart: (product: CartItemType) => void;
   clearCart: () => void;
 };
+
+export const loginFormSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters long")
+    .max(20, "Username can't be more than 20 characters long"),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters long")
+    .max(20, "Password can't be more than 20 characters long"),
+});
+
+export type LoginFormInputs = z.infer<typeof loginFormSchema>;
