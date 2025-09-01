@@ -4,6 +4,7 @@ import Searchbar from "./Searchbar";
 import { Bell, Home, ShoppingCart } from "lucide-react";
 import ShoppingCartIcon from "./ShoppingCartIcon";
 import Login from "./Login";
+import Register from "./Register";
 
 const Navbar = () => {
   return (
@@ -30,6 +31,7 @@ const Navbar = () => {
         <Bell className="w-4 h-4 text-gray-600" />
         <ShoppingCartIcon />
         <Login />
+        <Register />
       </div>
     </nav>
   );

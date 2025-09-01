@@ -10,20 +10,21 @@ import (
 type User struct {
     ID        int       `json:"id"`
     Name      string    `json:"name"`
+    Email     string    `json:"email"`
+    Password  string    `json:"-"`
     CreatedAt time.Time `json:"created_at"`
 }
 
-type CreateUserRequest struct {
-    Name string `json:"name"`
-}
 
-func CreateUser(name string) (*User, error) {
+func CreateUser(name string, email string, password string) (*User, error) {
     var user User
     err := config.DB.QueryRow(
-        "INSERT INTO users (name) VALUES ($1) RETURNING id, name, created_at",
+        "INSERT INTO users (name,email,password) VALUES ($1,$2,$3) RETURNING id, name, created_at,email",
         name,
-    ).Scan(&user.ID, &user.Name, &user.CreatedAt)
-    
+        email,
+        password,
+    ).Scan(&user.ID, &user.Name, &user.CreatedAt, &user.Email)
+
     if err != nil {
         return nil, err
     }

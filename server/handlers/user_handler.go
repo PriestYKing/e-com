@@ -18,7 +18,7 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-    var req models.CreateUserRequest
+    var req models.User
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
         utils.WriteError(w, http.StatusBadRequest, "Invalid JSON format")
         return
@@ -29,7 +29,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    user, err := models.CreateUser(req.Name)
+    user, err := models.CreateUser(req.Name,req.Email,req.Password)
     if err != nil {
         utils.WriteError(w, http.StatusInternalServerError, "Failed to create user: "+err.Error())
         return

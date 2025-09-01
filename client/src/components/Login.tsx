@@ -64,7 +64,7 @@ const Login = () => {
         <Dialog>
           <DialogTrigger asChild>
             <p className="cursor-pointer text-gray-600 font-medium text-sm">
-              Sign in
+              Login
             </p>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -77,16 +77,16 @@ const Login = () => {
             <form onSubmit={handleSubmit(handleLoginForm)}>
               <div className="grid gap-4 mb-4">
                 <div className="grid gap-3">
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
-                    id="username"
+                    id="email"
                     type="text"
-                    placeholder="John Doe"
-                    {...register("username")}
+                    placeholder="John@Doe.com"
+                    {...register("email")}
                   />
-                  {errors.username && (
+                  {errors.email && (
                     <p className="text-xs text-red-500">
-                      {errors.username.message}
+                      {errors.email.message}
                     </p>
                   )}
                 </div>

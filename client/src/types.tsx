@@ -60,10 +60,7 @@ export type CartStoreActionsType = {
 };
 
 export const loginFormSchema = z.object({
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters long")
-    .max(20, "Username can't be more than 20 characters long"),
+  email: z.email("Email is invalid"),
   password: z
     .string()
     .min(6, "Password must be at least 6 characters long")
@@ -71,3 +68,17 @@ export const loginFormSchema = z.object({
 });
 
 export type LoginFormInputs = z.infer<typeof loginFormSchema>;
+
+export const registerFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters long")
+    .max(100, "Name can't be more than 100 characters long"),
+  email: z.email("Email is invalid"),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters long")
+    .max(20, "Password can't be more than 20 characters long"),
+});
+
+export type RegisterFormInputs = z.infer<typeof registerFormSchema>;
