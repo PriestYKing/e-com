@@ -14,10 +14,9 @@ func SetupRoutes() http.Handler {
     mux.HandleFunc("/", handlers.HandleRoot)
     
     // User routes
-    mux.HandleFunc("POST /users", handlers.CreateUser)
-    mux.HandleFunc("GET /users/{id}", handlers.GetUser)
-    mux.HandleFunc("GET /users", handlers.GetAllUsers)
-    mux.HandleFunc("DELETE /users/{id}", handlers.DeleteUser)
+    mux.HandleFunc("POST /register", handlers.RegisterUser)
+    mux.HandleFunc("POST /login", handlers.LoginUser)
+
 
     //Product routes
     mux.HandleFunc("GET /products", handlers.GetAllProducts)

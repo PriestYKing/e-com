@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, use, useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -32,6 +32,8 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Separator } from "./ui/separator";
+import { toast } from "react-toastify";
+import userStore from "@/stores/userStore";
 const Register = () => {
   const {
     register,
@@ -40,76 +42,106 @@ const Register = () => {
   } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerFormSchema),
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const handleLoginForm = (data: RegisterFormInputs) => {
-    setIsAuthenticated(true);
+  const { setIsAuthenticated, isAuthenticated } = userStore();
+
+  const handleRegisterForm = async (data: RegisterFormInputs) => {
+    try {
+      const res = await fetch("http://localhost:8080/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (res.ok) {
+        const result = await res.json();
+        setIsAuthenticated(true);
+        toast("User registered successfully!");
+      } else {
+        const error = await res.json();
+        setIsAuthenticated(false);
+        toast.error(error.message);
+      }
+    } catch (err) {
+      console.error("Failed to register user:", err);
+      setIsAuthenticated(false);
+    }
   };
 
   return (
     <>
-      <Dialog>
-        <DialogTrigger asChild>
-          <p className="cursor-pointer text-gray-600 font-medium text-sm">
-            Sign up
-          </p>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Register</DialogTitle>
-            <DialogDescription>
-              Please enter your details to sign up.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit(handleLoginForm)}>
-            <div className="grid gap-4 mb-4">
-              <div className="grid gap-3">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  {...register("name")}
-                />
-                {errors.name && (
-                  <p className="text-xs text-red-500">{errors.name.message}</p>
-                )}
+      {isAuthenticated ? (
+        ""
+      ) : (
+        <Dialog>
+          <DialogTrigger asChild>
+            <p className="cursor-pointer text-gray-600 font-medium text-sm">
+              Sign up
+            </p>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Register</DialogTitle>
+              <DialogDescription>
+                Please enter your details to sign up.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit(handleRegisterForm)}>
+              <div className="grid gap-4 mb-4">
+                <div className="grid gap-3">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    {...register("name")}
+                  />
+                  {errors.name && (
+                    <p className="text-xs text-red-500">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+                <div className="grid gap-3">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="John@Doe.com"
+                    {...register("email")}
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-red-500">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+                <div className="grid gap-3">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    placeholder="******"
+                    type="password"
+                    {...register("password")}
+                  />
+                  {errors.password && (
+                    <p className="text-xs text-red-500">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="John@Doe.com"
-                  {...register("email")}
-                />
-                {errors.email && (
-                  <p className="text-xs text-red-500">{errors.email.message}</p>
-                )}
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  placeholder="******"
-                  type="password"
-                  {...register("password")}
-                />
-                {errors.password && (
-                  <p className="text-xs text-red-500">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button type="submit">Login</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="submit">Login</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

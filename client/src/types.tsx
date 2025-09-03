@@ -59,6 +59,20 @@ export type CartStoreActionsType = {
   clearCart: () => void;
 };
 
+export type UserStoreStateType = {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  } | null;
+  isAuthenticated: boolean;
+};
+
+export type UserStoreActionsType = {
+  setUser: (user: UserStoreStateType["user"]) => void;
+  setIsAuthenticated: (authStatus: boolean) => void;
+};
+
 export const loginFormSchema = z.object({
   email: z.email("Email is invalid"),
   password: z

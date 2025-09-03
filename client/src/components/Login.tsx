@@ -27,6 +27,8 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Separator } from "./ui/separator";
+import userStore from "@/stores/userStore";
+import { toast } from "react-toastify";
 const Login = () => {
   const {
     register,
@@ -35,9 +37,36 @@ const Login = () => {
   } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginFormSchema),
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const handleLoginForm = (data: LoginFormInputs) => {
-    setIsAuthenticated(true);
+
+  const { user, setUser, setIsAuthenticated, isAuthenticated } = userStore();
+
+  const handleLoginForm = async (data: LoginFormInputs) => {
+    try {
+      const res = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        credentials: "include", // <-- Important for cookies!
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        console.log("User logged in successfully:", result);
+        setIsAuthenticated(true);
+        setUser(result.user);
+      } else {
+        const error = await res.json();
+        toast.error(error.message || "Login failed");
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    } catch (err) {
+      console.error("Failed to login user:", err);
+      setIsAuthenticated(false);
+      setUser(null);
+    }
   };
 
   return (
