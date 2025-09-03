@@ -10,13 +10,12 @@ import (
 func SetupRoutes() http.Handler {
     mux := http.NewServeMux()
     
-    // Root route
-    mux.HandleFunc("/", handlers.HandleRoot)
-    
+   
+ 
     // User routes
     mux.HandleFunc("POST /register", handlers.RegisterUser)
     mux.HandleFunc("POST /login", handlers.LoginUser)
-
+    mux.HandleFunc("POST /logout", handlers.LogoutUser)
 
     //Product routes
     mux.HandleFunc("GET /products", handlers.GetAllProducts)
