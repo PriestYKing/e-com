@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"server/cache"
 	"server/config"
 	"server/routes"
 
@@ -26,6 +27,11 @@ func main() {
         log.Fatal("Failed to initialize Redis:", err)
     }
     
+     // Initialize Cache AFTER Redis
+    if err := cache.InitCache(); err != nil {
+        log.Fatal("Failed to initialize cache:", err)
+    }
+
     // Setup routes
     mux := routes.SetupRoutes()
     

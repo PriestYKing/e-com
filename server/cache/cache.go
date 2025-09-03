@@ -41,6 +41,20 @@ type CacheStats struct {
     Memory     string  `json:"memory_usage"`
 }
 
+
+// Initialize DefaultCache after Redis is initialized
+func InitCache() error {
+    if config.RedisCacheClient == nil {
+        return fmt.Errorf("Redis cache client not initialized")
+    }
+    
+    DefaultCache = &Cache{
+        client: config.RedisCacheClient,
+    }
+    
+    log.Println("Cache initialized successfully")
+    return nil
+}
 var (
     DefaultCache = &Cache{client: config.RedisCacheClient}
     
