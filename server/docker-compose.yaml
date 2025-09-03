@@ -8,3 +8,39 @@ services:
       POSTGRES_PASSWORD: mypassword
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: auth_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    networks:
+      - auth_network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis_gui
+    hostname: redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - auth_network
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  auth_network:
+    driver: bridge

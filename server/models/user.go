@@ -2,7 +2,9 @@
 package models
 
 import (
+	"context"
 	"database/sql"
+	"server/cache"
 	"server/config"
 	"time"
 )
@@ -66,6 +68,16 @@ func CreateUser(name, email string, password []byte, ipAddress, device, deviceID
 }
 
 func GetUserByEmail(email string) (*User, error) {
+    ctx := context.Background()
+    
+    // Try cache first
+   // cacheKey := fmt.Sprintf("email:%s", email)
+    var cachedUser User
+    if found, err := cache.GetCachedUser(ctx, 0, &cachedUser); err == nil && found {
+        return &cachedUser, nil
+    }
+
+    // Cache miss - query database
     var user User
     err := config.DB.QueryRow(
         "SELECT id, name, email, password, created_at FROM users WHERE email = $1",
@@ -77,6 +89,44 @@ func GetUserByEmail(email string) (*User, error) {
     }
     
     user.Email = email
+    
+    // Cache the user (async)
+    go func() {
+        cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
+        cache.CacheUser(cacheCtx, user.ID, user)
+    }()
+    
+    return &user, nil
+}
+
+func GetUserByID(userID int) (*User, error) {
+    ctx := context.Background()
+    
+    // Try cache first
+    var cachedUser User
+    if found, err := cache.GetCachedUser(ctx, userID, &cachedUser); err == nil && found {
+        return &cachedUser, nil
+    }
+
+    // Cache miss - query database
+    var user User
+    err := config.DB.QueryRow(
+        "SELECT id, name, email, created_at FROM users WHERE id = $1",
+        userID,
+    ).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
+    
+    if err != nil {
+        return nil, err
+    }
+    
+    // Cache the user (async)
+    go func() {
+        cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
+        cache.CacheUser(cacheCtx, user.ID, user)
+    }()
+    
     return &user, nil
 }
 
