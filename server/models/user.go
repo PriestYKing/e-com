@@ -98,7 +98,7 @@ func GetUserByEmail(email string) (*User, error) {
     }()
     
     return &user, nil
-}
+} 
 
 func GetUserByID(userID int) (*User, error) {
     ctx := context.Background()

@@ -54,9 +54,8 @@ const Login = () => {
 
       if (res.ok) {
         const result = await res.json();
-        console.log("User logged in successfully:", result);
         setIsAuthenticated(true);
-        setUser(result.user);
+        setUser(result);
       } else {
         const error = await res.json();
         toast.error(error.message || "Login failed");

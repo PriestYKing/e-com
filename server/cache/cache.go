@@ -65,6 +65,12 @@ var (
         MaxSize:   1000,
     }
 
+    ProductCacheConfig = CacheConfig{
+        TTL:       1 * time.Hour,
+        KeyPrefix: "product",
+        MaxSize:   10000,
+    }
+
     SessionCacheConfig = CacheConfig{
         TTL:       24 * time.Hour,
         KeyPrefix: "session",
@@ -240,9 +246,19 @@ func CacheUser(ctx context.Context, userID int, user interface{}) error {
     return DefaultCache.Set(ctx, key, user, UserCacheConfig)
 }
 
+func CacheProducts(ctx context.Context, products interface{}) error {
+    key := "products"
+    return DefaultCache.Set(ctx, key, products, ProductCacheConfig)
+}
+
 func GetCachedUser(ctx context.Context, userID int, dest interface{}) (bool, error) {
     key := fmt.Sprintf("id:%d", userID)
     return DefaultCache.Get(ctx, key, UserCacheConfig, dest)
+}
+
+func GetCachedProducts(ctx context.Context, dest interface{}) (bool, error) {
+    key := "products"
+    return DefaultCache.Get(ctx, key, ProductCacheConfig, dest)
 }
 
 func CacheSession(ctx context.Context, sessionID int, session interface{}) error {

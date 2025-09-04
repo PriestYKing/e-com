@@ -7,11 +7,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Separator } from "@radix-ui/react-dropdown-menu";
+
 import userStore from "@/stores/userStore";
+import { Separator } from "./ui/separator";
 
 const UserMenu = () => {
-  const { logout } = userStore();
+  const { logout, user } = userStore();
 
   return (
     <DropdownMenu>
@@ -20,7 +21,7 @@ const UserMenu = () => {
           <User className="w-4 h-4 text-gray-600" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-32" align="start">
+      <DropdownMenuContent className="w-32 cursor-pointer" align="start">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -29,7 +30,7 @@ const UserMenu = () => {
             Logout
           </DropdownMenuItem>
           <Separator />
-          <DropdownMenuItem className="mt-2">Yash Patidar</DropdownMenuItem>
+          <DropdownMenuItem className="mt-2">{user?.name}</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

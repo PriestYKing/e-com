@@ -88,7 +88,7 @@ func APICacheMiddleware(cacheDuration time.Duration) func(http.HandlerFunc) http
             if rw.statusCode >= 200 && rw.statusCode < 300 {
                 responseToCache := ResponseCache{
                     StatusCode: rw.statusCode,
-                    Headers:    w.Header().Clone(),
+                   // Headers:    w.Header().Clone(),
                     Body:       rw.body.Bytes(),
                     CachedAt:   time.Now(),
                 }

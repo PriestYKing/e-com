@@ -237,7 +237,7 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
     if accessToken == "" {
         if cookie, err := r.Cookie("access_token"); err == nil {
             accessToken = cookie.Value
-        }
+        } 
     }
 
     // Get refresh token from cookie

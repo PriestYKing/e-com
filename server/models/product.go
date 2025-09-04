@@ -1,8 +1,11 @@
 package models
 
 import (
+	"context"
 	"encoding/json"
+	"server/cache"
 	"server/config"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -19,6 +22,11 @@ type Product struct{
 }
 
 func GetAllProducts() ([]Product, error) {
+     ctx := context.Background()
+      var cachedProducts []Product
+    if found, err := cache.GetCachedProducts(ctx, &cachedProducts); err == nil && found {
+        return cachedProducts, nil
+    }
     var products []Product
     rows, err := config.DB.Query("SELECT id, name, short_description, description, price, sizes, colors, images FROM products")
     if err != nil {
@@ -37,6 +45,10 @@ func GetAllProducts() ([]Product, error) {
         }
         products = append(products, p)
     }
-
+go func() {
+        cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
+        cache.CacheProducts(cacheCtx, products)
+    }()
     return products, nil
 }
