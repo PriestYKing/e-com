@@ -95,13 +95,9 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
     setTokenCookies(w, accessToken, refreshToken)
 
     user.Password = ""
-    response := TokenResponse{
-        AccessToken:  accessToken,
-        RefreshToken: refreshToken,
-        User:         *user,
-    }
+    
 
-    utils.WriteJSON(w, http.StatusCreated, response)
+    utils.WriteJSON(w, http.StatusCreated, user)
 }
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {
@@ -172,13 +168,9 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
     setTokenCookies(w, accessToken, refreshToken)
 
     user.Password = ""
-    response := TokenResponse{
-        AccessToken:  accessToken,
-        RefreshToken: refreshToken,
-        User:         *user,
-    }
+   
 
-    utils.WriteJSON(w, http.StatusOK, response)
+    utils.WriteJSON(w, http.StatusOK, user)
 }
 
 

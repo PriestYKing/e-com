@@ -29,6 +29,7 @@ import {
 import { Separator } from "./ui/separator";
 import userStore from "@/stores/userStore";
 import { toast } from "react-toastify";
+import UserMenu from "./UserMenu";
 const Login = () => {
   const {
     register,
@@ -72,23 +73,7 @@ const Login = () => {
   return (
     <>
       {isAuthenticated ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="cursor-pointer">
-              <User className="w-4 h-4 text-gray-600" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-32" align="start">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuGroup>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem className="mb-2">Logout</DropdownMenuItem>
-              <Separator />
-              <DropdownMenuItem className="mt-2">Yash Patidar</DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <UserMenu />
       ) : (
         <Dialog>
           <DialogTrigger asChild>

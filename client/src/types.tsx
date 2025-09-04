@@ -71,6 +71,7 @@ export type UserStoreStateType = {
 export type UserStoreActionsType = {
   setUser: (user: UserStoreStateType["user"]) => void;
   setIsAuthenticated: (authStatus: boolean) => void;
+  logout: () => void;
 };
 
 export const loginFormSchema = z.object({
