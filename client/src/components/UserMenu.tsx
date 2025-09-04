@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import { Cog, LogOut, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,16 +21,22 @@ const UserMenu = () => {
           <User className="w-4 h-4 text-gray-600" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-32 cursor-pointer" align="start">
+      <DropdownMenuContent className="w-32 " align="start">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem className="mb-2" onClick={logout}>
-            Logout
+          <DropdownMenuItem className="cursor-pointer">
+            <User /> Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">
+            <Cog /> Settings
+          </DropdownMenuItem>
+          <DropdownMenuItem className="mb-2 cursor-pointer" onClick={logout}>
+            <LogOut /> Logout
           </DropdownMenuItem>
           <Separator />
-          <DropdownMenuItem className="mt-2">{user?.name}</DropdownMenuItem>
+          <DropdownMenuItem className="mt-2">
+            {user?.name.toUpperCase()}
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

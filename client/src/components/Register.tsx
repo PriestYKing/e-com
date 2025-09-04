@@ -32,7 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Separator } from "./ui/separator";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import userStore from "@/stores/userStore";
 const Register = () => {
   const {

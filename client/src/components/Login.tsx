@@ -28,7 +28,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Separator } from "./ui/separator";
 import userStore from "@/stores/userStore";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import UserMenu from "./UserMenu";
 const Login = () => {
   const {
@@ -56,6 +56,7 @@ const Login = () => {
         const result = await res.json();
         setIsAuthenticated(true);
         setUser(result);
+        toast.success("Login successful");
       } else {
         const error = await res.json();
         toast.error(error.message || "Login failed");

@@ -1,4 +1,5 @@
 import { UserStoreActionsType, UserStoreStateType } from "@/types";
+import { toast } from "sonner";
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -19,6 +20,7 @@ const userStore = create<UserStoreStateType & UserStoreActionsType>()(
           .then((res) => {
             if (res.ok) {
               set({ user: null, isAuthenticated: false });
+              toast.info("Logout successful");
             }
           })
           .catch((err) => {

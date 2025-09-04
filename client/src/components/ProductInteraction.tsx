@@ -5,7 +5,7 @@ import { ProductType } from "@/types";
 import { Minus, Plus, PlusIcon, ShoppingCart } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const ProductInteraction = ({
   product,
