@@ -1,5 +1,6 @@
 "use client";
 
+import { useCart } from "@/contexts/cartContext";
 import useCartStore from "@/stores/cartStore";
 import { ProductType } from "@/types";
 import { Minus, Plus, PlusIcon, ShoppingCart } from "lucide-react";
@@ -19,7 +20,7 @@ const ProductInteraction = ({
   const router = useRouter();
   const pathName = usePathname();
   const searchParams = useSearchParams();
-  const { addToCart } = useCartStore();
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const handleTypeChange = (type: "size" | "color", value: string) => {
     const params = new URLSearchParams(searchParams.toString());

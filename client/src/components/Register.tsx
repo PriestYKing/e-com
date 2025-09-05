@@ -1,6 +1,5 @@
 "use client";
 
-import { FormEvent, use, useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -14,26 +13,12 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import {
-  LoginFormInputs,
-  loginFormSchema,
-  RegisterFormInputs,
-  registerFormSchema,
-} from "@/types";
+import { RegisterFormInputs, registerFormSchema } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { User } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Separator } from "./ui/separator";
 import { toast } from "sonner";
-import userStore from "@/stores/userStore";
+import { useAuth } from "@/contexts/AuthContext";
+
 const Register = () => {
   const {
     register,
@@ -42,7 +27,9 @@ const Register = () => {
   } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerFormSchema),
   });
-  const { setIsAuthenticated, isAuthenticated } = userStore();
+
+  // Replace zustand with Auth context
+  const { login, isAuthenticated } = useAuth();
 
   const handleRegisterForm = async (data: RegisterFormInputs) => {
     try {
@@ -52,27 +39,29 @@ const Register = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-        credentials: "include",
+        credentials: "include", // Important for cookies
       });
+
       if (res.ok) {
         const result = await res.json();
-        setIsAuthenticated(true);
-        toast("User registered successfully!");
+        // After successful registration, the JWT token is in cookies
+        // Call login() to decode and set authentication state
+        login();
+        toast.success("User registered successfully!");
       } else {
         const error = await res.json();
-        setIsAuthenticated(false);
-        toast.error(error.message);
+        toast.error(error.message || "Registration failed");
       }
     } catch (err) {
       console.error("Failed to register user:", err);
-      setIsAuthenticated(false);
+      toast.error("Network error occurred");
     }
   };
 
   return (
     <>
       {isAuthenticated ? (
-        ""
+        "" // or null - when user is authenticated, don't show register option
       ) : (
         <Dialog>
           <DialogTrigger asChild>
@@ -136,7 +125,8 @@ const Register = () => {
                 <DialogClose asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>
-                <Button type="submit">Login</Button>
+                <Button type="submit">Register</Button>{" "}
+                {/* Fixed button text */}
               </DialogFooter>
             </form>
           </DialogContent>

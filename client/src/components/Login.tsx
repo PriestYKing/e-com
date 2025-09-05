@@ -1,6 +1,5 @@
 "use client";
 
-import { FormEvent, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -17,19 +16,10 @@ import { Input } from "./ui/input";
 import { LoginFormInputs, loginFormSchema } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { User } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Separator } from "./ui/separator";
-import userStore from "@/stores/userStore";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import UserMenu from "./UserMenu";
+
 const Login = () => {
   const {
     register,
@@ -39,7 +29,8 @@ const Login = () => {
     resolver: zodResolver(loginFormSchema),
   });
 
-  const { user, setUser, setIsAuthenticated, isAuthenticated } = userStore();
+  // Replace zustand with Auth context
+  const { login, isAuthenticated } = useAuth();
 
   const handleLoginForm = async (data: LoginFormInputs) => {
     try {
@@ -49,24 +40,21 @@ const Login = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-        credentials: "include", // <-- Important for cookies!
+        credentials: "include", // Important for cookies!
       });
 
       if (res.ok) {
         const result = await res.json();
-        setIsAuthenticated(true);
-        setUser(result);
+        // The JWT token is now in cookies, so just call login() to decode it
+        login();
         toast.success("Login successful");
       } else {
         const error = await res.json();
         toast.error(error.message || "Login failed");
-        setIsAuthenticated(false);
-        setUser(null);
       }
     } catch (err) {
       console.error("Failed to login user:", err);
-      setIsAuthenticated(false);
-      setUser(null);
+      toast.error("Network error occurred");
     }
   };
 

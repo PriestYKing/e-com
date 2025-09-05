@@ -2,6 +2,7 @@
 
 import PaymentForm from "@/components/PaymentForm";
 import ShippingForm from "@/components/ShippingForm";
+import { useCart } from "@/contexts/cartContext";
 import useCartStore from "@/stores/cartStore";
 import { CartItemsType, ShippingFormInputs } from "@/types";
 import { ArrowRight, Trash2 } from "lucide-react";
@@ -87,7 +88,7 @@ const CartPage = () => {
   const [shippingForm, setShippingForm] = useState<ShippingFormInputs>();
   const activeStep = parseInt(searchParams.get("step") || "1");
 
-  const { cart, removeFromCart } = useCartStore();
+  const { cart, removeFromCart } = useCart();
 
   return (
     <div className="flex flex-col gap-8 items-center justify-center mt-12 ">

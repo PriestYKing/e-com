@@ -14,6 +14,7 @@ import (
 )
 
 type Claims struct {
+    Name     string `json:"name"`
     UserID    int    `json:"user_id"`
     Email     string `json:"email"`
     SessionID int    `json:"session_id"`
@@ -21,12 +22,13 @@ type Claims struct {
     jwt.RegisteredClaims
 }
 
-func GenerateTokenPair(userID int, email string, sessionID int) (string, string, error) {
+func GenerateTokenPair(userID int, email string, sessionID int, name string) (string, string, error) {
     // Access token (15 minutes)
     accessClaims := &Claims{
         UserID:    userID,
         Email:     email,
         SessionID: sessionID,
+        Name:      name,
         TokenType: "access",
         RegisteredClaims: jwt.RegisteredClaims{
             ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),

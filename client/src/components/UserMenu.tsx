@@ -8,11 +8,12 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-import userStore from "@/stores/userStore";
 import { Separator } from "./ui/separator";
+import { useContext } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const UserMenu = () => {
-  const { logout, user } = userStore();
+  const { user, logout } = useAuth();
 
   return (
     <DropdownMenu>

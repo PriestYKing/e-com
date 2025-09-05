@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"server/config"
 	"server/models"
 	"server/utils"
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -79,7 +81,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
     }
 
     // Generate token pair
-    accessToken, refreshToken, err := utils.GenerateTokenPair(user.ID, user.Email, session.ID)
+    accessToken, refreshToken, err := utils.GenerateTokenPair(user.ID, user.Email, session.ID,user.Name)
     if err != nil {
         utils.WriteError(w, http.StatusInternalServerError, "Failed to generate tokens")
         return
@@ -152,7 +154,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
     }
 
     // Generate token pair
-    accessToken, refreshToken, err := utils.GenerateTokenPair(user.ID, user.Email, session.ID)
+    accessToken, refreshToken, err := utils.GenerateTokenPair(user.ID, user.Email, session.ID,user.Name)
     if err != nil {
         utils.WriteError(w, http.StatusInternalServerError, "Failed to generate tokens: "+err.Error())
         return
@@ -200,7 +202,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
     }
 
     // Generate new token pair
-    accessToken, newRefreshToken, err := utils.GenerateTokenPair(claims.UserID, claims.Email, session.ID)
+    accessToken, newRefreshToken, err := utils.GenerateTokenPair(claims.UserID, claims.Email, session.ID,claims.Name)
     if err != nil {
         utils.WriteError(w, http.StatusInternalServerError, "Failed to generate tokens")
         return
@@ -338,4 +340,44 @@ func clearTokenCookies(w http.ResponseWriter) {
         HttpOnly: true,
         Expires:  time.Now().Add(-time.Hour),
     })
+}
+
+func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
+    // Get the JWT token from the httpOnly cookie
+    cookie, err := r.Cookie("access_token") // Use your actual cookie name
+    if err != nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+
+    // Validate and parse the JWT token
+    claims := &utils.Claims{}
+    token, err := jwt.ParseWithClaims(cookie.Value, claims, func(token *jwt.Token) (interface{}, error) {
+        return []byte(os.Getenv("JWT_SECRET")), nil
+    })
+
+    if err != nil || !token.Valid {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+
+    // Check if it's an access token
+    if claims.TokenType != "access" {
+        http.Error(w, "Invalid token type", http.StatusUnauthorized)
+        return
+    }
+
+    // Return user data
+    userData := map[string]interface{}{
+        "id":        claims.UserID,
+        "name":     claims.Name,
+        "email":     claims.Email,
+        "sessionId": claims.SessionID,
+        "tokenType": claims.TokenType,
+        "exp":       claims.ExpiresAt.Unix(),
+        "iat":       claims.IssuedAt.Unix(),
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(userData)
 }

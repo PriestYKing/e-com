@@ -39,8 +39,13 @@ func SetupRoutes() http.Handler {
             middleware.APICacheMiddleware(10*time.Minute),
         ),
     ))
-    
 
+    mux.HandleFunc("/me", methodGuard("GET", 
+        applyMiddleware(handlers.GetCurrentUser, 
+            middleware.AuthMiddleware,
+            middleware.AuthRateLimitMiddleware(),
+        ),
+    ))
 
     // Apply CORS middleware and return the handler
     return middleware.EnableCORS(mux);
