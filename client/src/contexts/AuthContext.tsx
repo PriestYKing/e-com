@@ -7,6 +7,7 @@ import React, {
   ReactNode,
 } from "react";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import { useMemo } from "react";
 
 interface User {
   id: string;
@@ -115,16 +116,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [user]);
 
-  const value = {
-    user,
-    isAuthenticated,
-    setUser,
-    setIsAuthenticated,
-    login,
-    logout,
-    loading,
-    checkAuth,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated,
+      setUser,
+      setIsAuthenticated,
+      login,
+      logout,
+      loading,
+      checkAuth,
+    }),
+    [user, isAuthenticated, loading]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

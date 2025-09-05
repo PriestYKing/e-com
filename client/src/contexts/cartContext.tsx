@@ -7,6 +7,7 @@ import React, {
   ReactNode,
 } from "react";
 import { CartItemType as CartItem } from "@/types";
+import { useMemo } from "react";
 
 interface CartContextType {
   cart: CartItem[];
@@ -156,15 +157,26 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     return cart.reduce((total, item) => total + item.quantity, 0);
   };
 
-  const value = {
-    cart,
-    hasHydrated,
-    addToCart,
-    removeFromCart,
-    clearCart,
-    getCartTotal,
-    getCartItemsCount,
-  };
+  const value = useMemo(
+    () => ({
+      cart,
+      hasHydrated,
+      addToCart,
+      removeFromCart,
+      clearCart,
+      getCartTotal,
+      getCartItemsCount,
+    }),
+    [
+      cart,
+      hasHydrated,
+      addToCart,
+      removeFromCart,
+      clearCart,
+      getCartTotal,
+      getCartItemsCount,
+    ]
+  );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
