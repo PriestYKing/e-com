@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trendlama - Best Clothes",
+  title: "TrendZ - Best Clothes",
   description: "Shop the latest trends in fashion",
 };
 

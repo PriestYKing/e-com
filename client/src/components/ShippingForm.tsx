@@ -3,12 +3,10 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/contexts/cartContext";
 
-const ShippingForm = ({
-  setShippingForm,
-}: {
-  setShippingForm: (data: ShippingFormInputs) => void;
-}) => {
+const ShippingForm = () => {
+  // Remove props
   const {
     register,
     handleSubmit,
@@ -16,11 +14,15 @@ const ShippingForm = ({
   } = useForm<ShippingFormInputs>({
     resolver: zodResolver(shippingFormSchema),
   });
+
   const router = useRouter();
+  const { setShippingForm } = useCart(); // Use context
+
   const handleShippingForm: SubmitHandler<ShippingFormInputs> = (data) => {
-    setShippingForm(data);
+    setShippingForm(data); // Save to context
     router.push("/cart?step=3", { scroll: false });
   };
+
   return (
     <form
       className="flex flex-col gap-4"

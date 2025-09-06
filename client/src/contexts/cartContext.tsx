@@ -5,20 +5,27 @@ import React, {
   useState,
   useEffect,
   ReactNode,
+  useMemo,
+  useCallback,
 } from "react";
-import { CartItemType as CartItem } from "@/types";
-import { useMemo } from "react";
+import { CartItemType as CartItem, ShippingFormInputs } from "@/types";
 
 interface CartContextType {
   cart: CartItem[];
   hasHydrated: boolean;
+  shippingForm: ShippingFormInputs | null;
   addToCart: (product: CartItem) => void;
   removeFromCart: (
     product: Pick<CartItem, "id" | "selectedSize" | "selectedColor">
   ) => void;
   clearCart: () => void;
+  setShippingForm: (data: ShippingFormInputs) => void;
+  clearShippingForm: () => void;
   getCartTotal: () => number;
   getCartItemsCount: () => number;
+  getCartSubtotal: () => number;
+  getDiscount: () => number;
+  getShippingFee: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -36,24 +43,21 @@ interface CartProviderProps {
 }
 
 export const CartProvider = ({ children }: CartProviderProps) => {
-  // Initialize cart as an empty array
   const [cart, setCart] = useState<CartItem[]>([]);
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [shippingForm, setShippingFormState] =
+    useState<ShippingFormInputs | null>(null);
 
-  // Function to safely load cart from localStorage
+  // Safe localStorage loading
   const loadCartFromStorage = (): CartItem[] => {
     try {
       const savedCart = localStorage.getItem("cart");
       if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
-
-        // Validate that parsed data is actually an array
         if (Array.isArray(parsedCart)) {
           return parsedCart;
         } else {
-          console.warn(
-            "Cart data in localStorage is not an array, resetting to empty array"
-          );
+          console.warn("Cart data in localStorage is not an array, resetting");
           localStorage.removeItem("cart");
         }
       }
@@ -61,7 +65,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       console.error("Error parsing cart from localStorage:", error);
       localStorage.removeItem("cart");
     }
-    return []; // Always return an array as fallback
+    return [];
   };
 
   // Load cart from localStorage on mount
@@ -73,7 +77,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
   }, []);
 
-  // Save cart to localStorage whenever cart changes
+  // Save cart to localStorage
   useEffect(() => {
     if (hasHydrated && Array.isArray(cart)) {
       try {
@@ -84,11 +88,9 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
   }, [cart, hasHydrated]);
 
-  const addToCart = (product: CartItem) => {
+  const addToCart = useCallback((product: CartItem) => {
     setCart((prevCart) => {
-      // Ensure prevCart is an array
       if (!Array.isArray(prevCart)) {
-        console.warn("Previous cart state is not an array, resetting");
         return [product];
       }
 
@@ -100,7 +102,6 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       );
 
       if (existingIndex !== -1) {
-        // Product already exists, update quantity
         const updatedCart = [...prevCart];
         updatedCart[existingIndex] = {
           ...updatedCart[existingIndex],
@@ -109,72 +110,98 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         return updatedCart;
       }
 
-      // Product doesn't exist, add new item
       return [...prevCart, product];
     });
-  };
+  }, []);
 
-  const removeFromCart = (
-    product: Pick<CartItem, "id" | "selectedSize" | "selectedColor">
-  ) => {
-    setCart((prevCart) => {
-      // Ensure prevCart is an array
-      if (!Array.isArray(prevCart)) {
-        console.warn("Previous cart state is not an array, resetting");
-        return [];
-      }
+  const removeFromCart = useCallback(
+    (product: Pick<CartItem, "id" | "selectedSize" | "selectedColor">) => {
+      setCart((prevCart) => {
+        if (!Array.isArray(prevCart)) {
+          return [];
+        }
 
-      return prevCart.filter(
-        (p) =>
-          !(
-            p.id === product.id &&
-            p.selectedSize === product.selectedSize &&
-            p.selectedColor === product.selectedColor
-          )
-      );
-    });
-  };
+        return prevCart.filter(
+          (p) =>
+            !(
+              p.id === product.id &&
+              p.selectedSize === product.selectedSize &&
+              p.selectedColor === product.selectedColor
+            )
+        );
+      });
+    },
+    []
+  );
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
-  const getCartTotal = () => {
-    // Ensure cart is an array before calling reduce
-    if (!Array.isArray(cart)) {
-      console.warn("Cart is not an array in getCartTotal");
-      return 0;
-    }
+  const setShippingForm = useCallback((data: ShippingFormInputs) => {
+    setShippingFormState(data);
+  }, []);
+
+  const clearShippingForm = useCallback(() => {
+    setShippingFormState(null);
+  }, []);
+
+  const getCartSubtotal = useCallback(() => {
+    if (!Array.isArray(cart)) return 0;
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  };
+  }, [cart]);
 
-  const getCartItemsCount = () => {
-    // Ensure cart is an array before calling reduce
-    if (!Array.isArray(cart)) {
-      console.warn("Cart is not an array in getCartItemsCount");
-      return 0;
-    }
+  const getDiscount = useCallback(() => {
+    // 10% discount logic or fixed amount
+    return 10;
+  }, []);
+
+  const getShippingFee = useCallback(() => {
+    return 10;
+  }, []);
+
+  const getCartTotal = useCallback(() => {
+    const subtotal = getCartSubtotal();
+    const discount = getDiscount();
+    const shipping = getShippingFee();
+    return subtotal - discount + shipping;
+  }, [getCartSubtotal, getDiscount, getShippingFee]);
+
+  const getCartItemsCount = useCallback(() => {
+    if (!Array.isArray(cart)) return 0;
     return cart.reduce((total, item) => total + item.quantity, 0);
-  };
+  }, [cart]);
 
   const value = useMemo(
     () => ({
       cart,
       hasHydrated,
+      shippingForm,
       addToCart,
       removeFromCart,
       clearCart,
+      setShippingForm,
+      clearShippingForm,
       getCartTotal,
       getCartItemsCount,
+      getCartSubtotal,
+      getDiscount,
+      getShippingFee,
     }),
     [
       cart,
       hasHydrated,
+      shippingForm,
       addToCart,
       removeFromCart,
       clearCart,
+      setShippingForm,
+      clearShippingForm,
       getCartTotal,
       getCartItemsCount,
+      getCartSubtotal,
+      getDiscount,
+      getShippingFee,
     ]
   );
 
